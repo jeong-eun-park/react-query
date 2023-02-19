@@ -26,7 +26,7 @@ const Example = () => {
       const resData = await res.data.message;
       return resData;
     },
-    { enabled: !!click }
+    { enabled: !click }
   );
 
   if (isLoading) return <div> "Loading..." </div>;
@@ -39,11 +39,10 @@ const Example = () => {
   const changeBoolean = () => {
     setClick(!click);
   };
-  console.log(queryClient);
 
   return (
     <Box>
-      {data.map((image, index) => {
+      {data?.map((image, index) => {
         return (
           <ImageBox key={index}>
             <Image src={image} />
