@@ -1,11 +1,12 @@
 import React from "react";
+import { useState } from "react";
 import styled from "styled-components";
 import { QueryClient, QueryClientProvider, useQuery } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
+import axios from "axios";
 
 const queryClient = new QueryClient();
 const Main = () => {
-  // console.log(queryClient);
   return (
     <QueryClientProvider client={queryClient}>
       <Example />
@@ -17,30 +18,32 @@ const Main = () => {
 export default Main;
 
 const Example = () => {
-  const { isLoading, error, data } = useQuery(
+  const [click, setClick] = useState(true);
+  const { isError, isLoading, data } = useQuery(
     "image",
-    () =>
-      fetch("https://dog.ceo/api/breeds/image/random/10").then((res) =>
-        res.json()
-      )
-    //.then((data) => console.log(data))
+    async () => {
+      const res = await axios("https://dog.ceo/api/breeds/image/random/10");
+      const resData = await res.data.message;
+      return resData;
+    },
+    { enabled: !!click }
   );
 
-  if (isLoading) return "Loading...";
+  if (isLoading) return <div> "Loading..." </div>;
 
-  if (error) return "An error has occurred ";
-
+  if (isError) return <div>"An error has occurred "</div>;
   const resetCache = () => {
     queryClient.resetQueries("image");
   };
 
-  // const removeCache = () => {
-  //   queryClient.refetchQueries("image");
-  // };
+  const changeBoolean = () => {
+    setClick(!click);
+  };
+  console.log(queryClient);
 
   return (
     <Box>
-      {data?.message.map((image, index) => {
+      {data.map((image, index) => {
         return (
           <ImageBox key={index}>
             <Image src={image} />
@@ -48,7 +51,7 @@ const Example = () => {
         );
       })}
       <Btn onClick={resetCache}>클릭</Btn>
-      {/* <Btn onClick={removeCache}>클릭</Btn> */}
+      <Btn onClick={changeBoolean}>boolean</Btn>
     </Box>
   );
 };
